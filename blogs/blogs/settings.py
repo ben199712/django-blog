@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'blog_main',
     'crispy_forms',
     'crispy_bootstrap4',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
