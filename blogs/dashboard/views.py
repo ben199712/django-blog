@@ -1,18 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from blog_main.models import Category, Blog
 from django.contrib.auth.decorators import login_required
-from .forms import CategoryForm, BlogsForm
+from .forms import CategoryForm, BlogsForm, AddUserForm, EditUserForm
 from django.template.defaultfilters import slugify
+from django.contrib.auth.models import User
 
 # Create your views here.
 @login_required(login_url='login')
 def dashboard(request):
     category_count = Category.objects.all().count()
     blog_count = Blog.objects.all().count()
+    user_count = User.objects.all().count()
 
     context = {
         'category_count': category_count,
         'blog_count':blog_count,
+        'user_count':user_count,
     }
     return render(request, 'dashboard/dashboard.html', context)
 
@@ -110,3 +113,50 @@ def delete_posts(request, pk):
     post = get_object_or_404(Blog, pk=pk)
     post.delete()
     return redirect('posts')
+
+
+
+#users view
+def user(request):
+    user = User.objects.all()
+    conttext = {
+        'user':user
+    }
+    return render(request, 'dashboard/users.html', conttext)
+
+
+def add_users(request):
+    if request.method == 'POST':
+        form = AddUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('user')
+        else:
+            print(form.errors)
+    form = AddUserForm()
+    context = {
+        'form':form,
+    }
+    return render(request, 'dashboard/add_users.html', context)
+
+
+def edit_users(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if request.method == 'POST':
+        form = EditUserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('user')
+        else:
+            print(form.errors)
+    form = EditUserForm(instance=user)
+    context = {
+        'form':form,
+    }
+    return render(request, 'dashboard/edit_users.html', context)
+
+
+def delete_users(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    user.delete()
+    return redirect('user')
